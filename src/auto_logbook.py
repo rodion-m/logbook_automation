@@ -17,15 +17,14 @@ from src.homework_status import HomeworkStatus
 class AutoLogbook:
     """Logbook automation class"""
 
-    def __init__(self, login: str, password: str, alerter: Alerter, headless: bool = True):
-        """Constructor"""
+    def __init__(self, login: str, password: str, driver_filename: str, alerter: Alerter, headless: bool = True):
         self.login = login
         self.password = password
         self.alerter: Alerter = alerter
         self.not_logged = True
         options = webdriver.ChromeOptions()
         options.headless = headless
-        self.driver = webdriver.Chrome('chromedriver.exe', options=options)
+        self.driver = webdriver.Chrome(driver_filename, options=options)
 
     def get_review_needed_homework(self):
         logged: bool = self.is_logged()

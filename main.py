@@ -11,5 +11,8 @@ logging.root.setLevel(logging.WARNING)
 
 if __name__ == '__main__':
     logging.warning('Running...')
-    logbook = AutoLogbook(os.getenv("login"), os.getenv("password"), TkMessageBoxAlerter(), headless=True)
+    logbook = AutoLogbook(os.getenv("login"), os.getenv("password"),
+                          os.getenv("driver_filename"),
+                          TkMessageBoxAlerter(),
+                          headless=True)
     logbook.start_homework_checker()
