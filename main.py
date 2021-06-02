@@ -17,7 +17,7 @@ async def main():
     logging.warning('Running...')
     logbook = AutoLogbookPwAsync(os.getenv("login"), os.getenv("password"),
                                  Win10ToastAlerter(),
-                                 headless=False)
+                                 headless=True)
     await logbook.start_homework_checker()
 
 
