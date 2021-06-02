@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 from time import sleep
+from typing import List
 
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
@@ -14,7 +15,7 @@ from src.alerter import Alerter
 from src.homework_status import HomeworkStatus
 
 
-class AutoLogbook:
+class AutoLogbookSelenium:
     """Logbook automation class"""
 
     def __init__(self, login: str, password: str, driver_filename: str, alerter: Alerter, headless: bool = True):
@@ -26,7 +27,7 @@ class AutoLogbook:
         options.headless = headless
         self.driver = webdriver.Chrome(driver_filename, options=options)
 
-    def get_review_needed_homework(self):
+    def get_review_needed_homework(self) -> List[str]:
         logged: bool = self.is_logged()
         if not logged:
             logged = self.do_login()
@@ -34,13 +35,14 @@ class AutoLogbook:
             raise Exception("Cannot login. Perhaps wrong login or password (check .env file).")
         logging.warning("Checking homework...")
         self.driver.get("https://logbook.itstep.org/#/homeWork")
+
         table: WebElement = WebDriverWait(self.driver, 10).until(
             expected_conditions.presence_of_element_located((By.XPATH, "//table[contains(@class, 'home_work-table')]"))
         )
         sleep(5)
         tbody = table.find_element_by_tag_name("tbody")
         rows = tbody.find_elements_by_tag_name("tr")
-        homework: list = []
+        homework: list[(str, HomeworkStatus)] = []
         for row in rows:
             name = row.text.strip()
             student_name_td = row.find_element_by_xpath(".//td[contains(@class, 'student-name')]")
@@ -48,9 +50,10 @@ class AutoLogbook:
                 p = student_name_td.find_element_by_tag_name("p")
                 if p:
                     name = p.text.strip()
-            grade_div = row.find_element_by_xpath(".//div[contains(@class, 'input-field')]")
-            status = HomeworkStatus.from_class_name(grade_div.get_attribute("class"))
-            homework.append((name, status))
+            grade_divs = row.find_elements_by_xpath(".//div[contains(@class, 'input-field')]")
+            for div in grade_divs:
+                status = HomeworkStatus.from_class_name(div.get_attribute("class"))
+                homework.append((name, status))
 
         done_homework = list(h[0] for h in homework if h[1] == HomeworkStatus.DONE)
         undone_homework = list(h[0] for h in homework if h[1] == HomeworkStatus.UNDONE)
@@ -58,6 +61,14 @@ class AutoLogbook:
 
         logging.warning(f'Done homework: {len(done_homework)}')
         logging.warning(f'Undone homework: {len(undone_homework)}')
+
+        # dialog: WebElement = WebDriverWait(self.driver, 10).until(
+        #     expected_conditions.presence_of_element_located((By.CSS_SELECTOR, "md-dialog.layout-padding.md-transition-in"))
+        # )
+        # sleep(5)
+        # students: list[WebElement] = dialog.find_elements_by_xpath("//ul/li[1]/span[2]")
+        # review_needed_homework = list(student.text for student in students)
+
         if len(review_needed_homework) > 0:
             logging.warning(f'HOMEWORK NEEDED REVIEW ({len(review_needed_homework)}):\n {review_needed_homework}')
 

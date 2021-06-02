@@ -28,5 +28,3 @@ class Win10ToastAlerter(Alerter):
             # True = run other code in parallel; False = code execution will wait till notification disappears
             callback_on_click=open_homework_url  # click notification to run function
         )
-
-

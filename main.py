@@ -1,8 +1,11 @@
+import asyncio
 import os
 import logging
 
 from dotenv import load_dotenv
-from src.auto_logbook import AutoLogbook
+
+from src.auto_logbook_pw import AutoLogbookPwAsync
+from src.auto_logbook_selenium import AutoLogbookSelenium
 from src.tk_message_box_alerter import TkMessageBoxAlerter
 from src.win10_toast_alerter import Win10ToastAlerter
 
@@ -10,10 +13,14 @@ load_dotenv()
 logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
 logging.root.setLevel(logging.WARNING)
 
-if __name__ == '__main__':
+
+async def main():
     logging.warning('Running...')
-    logbook = AutoLogbook(os.getenv("login"), os.getenv("password"),
-                          os.getenv("driver_filename"),
-                          Win10ToastAlerter(),
-                          headless=True)
-    logbook.start_homework_checker()
+    logbook = AutoLogbookPwAsync(os.getenv("login"), os.getenv("password"),
+                                 Win10ToastAlerter(),
+                                 headless=True)
+    await logbook.start_homework_checker()
+
+
+if __name__ == '__main__':
+    asyncio.run(main(), debug=True)
