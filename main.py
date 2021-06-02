@@ -5,7 +5,6 @@ import logging
 from dotenv import load_dotenv
 
 from src.auto_logbook_pw import AutoLogbookPwAsync
-from src.auto_logbook_selenium import AutoLogbookSelenium
 from src.tk_message_box_alerter import TkMessageBoxAlerter
 from src.win10_toast_alerter import Win10ToastAlerter
 
@@ -18,7 +17,7 @@ async def main():
     logging.warning('Running...')
     logbook = AutoLogbookPwAsync(os.getenv("login"), os.getenv("password"),
                                  Win10ToastAlerter(),
-                                 headless=True)
+                                 headless=False)
     await logbook.start_homework_checker()
 
 

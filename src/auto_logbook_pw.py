@@ -3,6 +3,8 @@ import logging
 from datetime import datetime
 from typing import List
 
+import playwright
+
 from src.alerter import Alerter
 from src.homework_status import HomeworkStatus
 
@@ -11,8 +13,8 @@ from playwright.async_api import async_playwright, Browser, Page
 
 class AutoLogbookPwAsync:
     """Logbook automation class"""
-    browser: Browser
-    page: Page
+    browser: Browser = None
+    page: Page = None
 
     def __init__(self, login: str, password: str, alerter: Alerter, headless: bool = True):
         self.login = login
@@ -89,8 +91,8 @@ class AutoLogbookPwAsync:
         await asyncio.sleep(2)
 
         try:
-            await self.page.wait_for_load_state(timeout=10)
-        except TimeoutError:
+            await self.page.wait_for_load_state()
+        except TimeoutError: # не работает
             self.not_logged = True
 
         logging.warning(f"Logged in: {not self.not_logged}")
